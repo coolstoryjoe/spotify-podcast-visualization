@@ -20,6 +20,14 @@ export interface YearlyData {
   totalHours: number;
 }
 
+export interface QuarterlyData {
+  year: number;
+  quarter: number;
+  label: string;
+  podcasts: { [showName: string]: number };
+  totalHours: number;
+}
+
 export interface ChartData {
   labels: string[];
   datasets: {

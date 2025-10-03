@@ -1,16 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Headphones, TrendingUp, Clock, BarChart3 } from 'lucide-react';
+import { TrendingUp, Clock, BarChart3 } from 'lucide-react';
 import PodcastChart from '@/components/PodcastChart';
 import PodcastSelector from '@/components/PodcastSelector';
-import { PodcastEntry, YearlyData } from '@/types/podcast';
-import { processYearlyData, getTopPodcasts, createChartData, formatHours } from '@/utils/dataProcessor';
+import { PodcastEntry, YearlyData, QuarterlyData } from '@/types/podcast';
+import { processYearlyData, processQuarterlyData, getTopPodcasts, getTopPodcastsByYear, createChartDataQuarterly, formatHours } from '@/utils/dataProcessor';
 
 export default function Dashboard() {
   const [podcastData, setPodcastData] = useState<PodcastEntry[]>([]);
   const [yearlyData, setYearlyData] = useState<YearlyData[]>([]);
-  const [topPodcasts, setTopPodcasts] = useState<string[]>([]);
+  const [quarterlyData, setQuarterlyData] = useState<QuarterlyData[]>([]);
+  const [topPodcastsByYear, setTopPodcastsByYear] = useState<{ [year: number]: string[] }>({});
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedPodcasts, setSelectedPodcasts] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
@@ -24,9 +26,16 @@ export default function Dashboard() {
         const yearly = processYearlyData(data);
         setYearlyData(yearly);
 
-        const top = getTopPodcasts(yearly, 100);
-        setTopPodcasts(top);
-        setSelectedPodcasts(new Set(top.slice(0, 10)));
+        const quarterly = processQuarterlyData(data);
+        setQuarterlyData(quarterly);
+
+        const topByYear = getTopPodcastsByYear(yearly);
+        setTopPodcastsByYear(topByYear);
+
+        // Set the most recent year as default
+        const mostRecentYear = yearly[yearly.length - 1]?.year;
+        setSelectedYear(mostRecentYear);
+        setSelectedPodcasts(new Set(topByYear[mostRecentYear] || []));
 
         setLoading(false);
       } catch (error) {
@@ -40,24 +49,24 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--cream)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#E8DCC8' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-20 w-20 mx-auto mb-8"
+          <div className="animate-spin h-20 w-20 mx-auto mb-8"
                style={{
                  borderWidth: '4px',
                  borderStyle: 'solid',
-                 borderColor: 'var(--sand)',
-                 borderBottomColor: 'var(--accent-gold)'
+                 borderColor: '#D4C5A9',
+                 borderBottomColor: '#8B4513'
                }}>
           </div>
           <h2 className="text-2xl font-bold mb-3" style={{
             fontFamily: "'Crimson Text', Georgia, serif",
-            color: 'var(--dark-coffee)'
+            color: '#8B0000'
           }}>
             Preparing Your Journey
           </h2>
           <p className="font-light italic text-lg" style={{
-            color: 'var(--text-muted)',
+            color: '#6d4c36',
             fontFamily: "'Source Serif Pro', Georgia, serif"
           }}>
             Gathering the voices that shaped your days...
@@ -67,228 +76,234 @@ export default function Dashboard() {
     );
   }
 
-  const chartData = createChartData(yearlyData, selectedPodcasts);
+  const chartData = createChartDataQuarterly(quarterlyData, selectedPodcasts);
   const totalHours = podcastData.reduce((sum, entry) => sum + entry.ms_played / (1000 * 60 * 60), 0);
   const totalEpisodes = podcastData.length;
   const uniqueShows = new Set(podcastData.map(entry => entry.episode_show_name)).size;
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--cream)', color: 'var(--text-primary)' }}>
+    <div className="min-h-screen" style={{
+      background: 'linear-gradient(135deg, #E8DCC8 0%, #D4C5A9 100%)',
+      backgroundAttachment: 'fixed',
+      color: '#4a3728'
+    }}>
       {/* Header */}
-      <header className="border-b-2 border-opacity-30" style={{ borderColor: 'var(--sand)' }}>
-        <div className="max-w-7xl mx-auto px-8 py-12">
-          <div className="flex items-center space-x-4 mb-3">
-            <div className="p-3 rounded-xl shadow-lg" style={{ background: 'linear-gradient(135deg, var(--accent-warm), var(--accent-gold))' }}>
-              <Headphones className="w-7 h-7" style={{ color: 'var(--dark-coffee)' }} />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold font-serif tracking-wide" style={{
-                fontFamily: "'Crimson Text', Georgia, serif",
-                color: 'var(--dark-coffee)'
-              }}>
-                Podcast Listening Journey
-              </h1>
-            </div>
-          </div>
-          <p className="text-lg font-light italic ml-16" style={{
-            color: 'var(--text-muted)',
-            fontFamily: "'Source Serif Pro', Georgia, serif"
+      <header className="border-b-2" style={{ borderColor: '#C4B5A0' }}>
+        <div className="max-w-6xl mx-auto px-8 py-8 text-center">
+          <h1 className="text-5xl font-bold tracking-wide" style={{
+            fontFamily: "'Crimson Text', Georgia, serif",
+            color: '#8B0000',
+            fontWeight: '900'
           }}>
-            A soulful exploration of your audio adventures
-          </p>
+            Podcast Listening Journey
+          </h1>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <div className="rounded-2xl shadow-lg overflow-hidden" style={{
-            background: 'linear-gradient(135deg, var(--warm-beige), var(--sand))',
-            border: '2px solid var(--accent-warm)'
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="shadow-lg overflow-hidden" style={{
+            background: '#F5EFE6',
+            border: '2px solid #C4B5A0'
           }}>
             <div className="p-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-serif font-semibold text-sm tracking-wide uppercase mb-2" style={{
-                    color: 'var(--text-muted)',
-                    fontFamily: "'Source Serif Pro', Georgia, serif"
-                  }}>
-                    Time Spent Listening
-                  </p>
-                  <p className="text-3xl font-bold" style={{
-                    color: 'var(--dark-coffee)',
-                    fontFamily: "'Crimson Text', Georgia, serif"
-                  }}>
-                    {formatHours(totalHours)}
-                  </p>
-                  <p className="text-sm font-light italic mt-1" style={{ color: 'var(--text-muted)' }}>
-                    Hours of wisdom absorbed
-                  </p>
-                </div>
-                <div className="p-4 rounded-full shadow-md" style={{ background: 'var(--accent-gold)' }}>
-                  <Clock className="w-7 h-7" style={{ color: 'var(--dark-coffee)' }} />
-                </div>
+              <div className="text-center">
+                <p className="font-serif font-semibold text-sm tracking-wide uppercase mb-2" style={{
+                  color: '#6d4c36',
+                  fontFamily: "'Source Serif Pro', Georgia, serif"
+                }}>
+                  Time Spent Listening
+                </p>
+                <p className="text-3xl font-bold" style={{
+                  color: '#4a3728',
+                  fontFamily: "'Crimson Text', Georgia, serif"
+                }}>
+                  {formatHours(totalHours)}
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl shadow-lg overflow-hidden" style={{
-            background: 'linear-gradient(135deg, var(--warm-beige), var(--sand))',
-            border: '2px solid var(--accent-warm)'
+          <div className="shadow-lg overflow-hidden" style={{
+            background: '#F5EFE6',
+            border: '2px solid #C4B5A0'
           }}>
             <div className="p-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-serif font-semibold text-sm tracking-wide uppercase mb-2" style={{
-                    color: 'var(--text-muted)',
-                    fontFamily: "'Source Serif Pro', Georgia, serif"
-                  }}>
-                    Episodes Explored
-                  </p>
-                  <p className="text-3xl font-bold" style={{
-                    color: 'var(--dark-coffee)',
-                    fontFamily: "'Crimson Text', Georgia, serif"
-                  }}>
-                    {totalEpisodes.toLocaleString()}
-                  </p>
-                  <p className="text-sm font-light italic mt-1" style={{ color: 'var(--text-muted)' }}>
-                    Stories & conversations
-                  </p>
-                </div>
-                <div className="p-4 rounded-full shadow-md" style={{ background: 'var(--accent-gold)' }}>
-                  <TrendingUp className="w-7 h-7" style={{ color: 'var(--dark-coffee)' }} />
-                </div>
+              <div className="text-center">
+                <p className="font-serif font-semibold text-sm tracking-wide uppercase mb-2" style={{
+                  color: '#6d4c36',
+                  fontFamily: "'Source Serif Pro', Georgia, serif"
+                }}>
+                  Episodes Explored
+                </p>
+                <p className="text-3xl font-bold" style={{
+                  color: '#4a3728',
+                  fontFamily: "'Crimson Text', Georgia, serif"
+                }}>
+                  {totalEpisodes.toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl shadow-lg overflow-hidden" style={{
-            background: 'linear-gradient(135deg, var(--warm-beige), var(--sand))',
-            border: '2px solid var(--accent-warm)'
+          <div className="shadow-lg overflow-hidden" style={{
+            background: '#F5EFE6',
+            border: '2px solid #C4B5A0'
           }}>
             <div className="p-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-serif font-semibold text-sm tracking-wide uppercase mb-2" style={{
-                    color: 'var(--text-muted)',
-                    fontFamily: "'Source Serif Pro', Georgia, serif"
-                  }}>
-                    Unique Voices
-                  </p>
-                  <p className="text-3xl font-bold" style={{
-                    color: 'var(--dark-coffee)',
-                    fontFamily: "'Crimson Text', Georgia, serif"
-                  }}>
-                    {uniqueShows}
-                  </p>
-                  <p className="text-sm font-light italic mt-1" style={{ color: 'var(--text-muted)' }}>
-                    Different perspectives
-                  </p>
-                </div>
-                <div className="p-4 rounded-full shadow-md" style={{ background: 'var(--accent-gold)' }}>
-                  <BarChart3 className="w-7 h-7" style={{ color: 'var(--dark-coffee)' }} />
-                </div>
+              <div className="text-center">
+                <p className="font-serif font-semibold text-sm tracking-wide uppercase mb-2" style={{
+                  color: '#6d4c36',
+                  fontFamily: "'Source Serif Pro', Georgia, serif"
+                }}>
+                  Unique Voices
+                </p>
+                <p className="text-3xl font-bold" style={{
+                  color: '#4a3728',
+                  fontFamily: "'Crimson Text', Georgia, serif"
+                }}>
+                  {uniqueShows}
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Chart */}
-          <div className="lg:col-span-2">
-            <div className="rounded-2xl shadow-lg overflow-hidden" style={{
-              background: 'var(--warm-beige)',
-              border: '2px solid var(--sand)'
-            }}>
-              <div className="p-8">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h2 className="text-2xl font-bold mb-2" style={{
-                      fontFamily: "'Crimson Text', Georgia, serif",
-                      color: 'var(--dark-coffee)'
-                    }}>
-                      Your Listening Tapestry
-                    </h2>
-                    <p className="font-light italic" style={{ color: 'var(--text-muted)' }}>
-                      The rhythm of your years through audio
+        {/* Chart */}
+        <div className="mb-12">
+          <div className="shadow-lg overflow-hidden" style={{
+            background: '#F5EFE6',
+            border: '2px solid #C4B5A0'
+          }}>
+            <div className="p-8">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2" style={{
+                    fontFamily: "'Crimson Text', Georgia, serif",
+                    color: '#8B0000'
+                  }}>
+                    Quarterly Listening Overview
+                  </h2>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold" style={{ color: '#6d4c36' }}>
+                    Showing {selectedPodcasts.size} show{selectedPodcasts.size !== 1 ? 's' : ''}
+                  </div>
+                </div>
+              </div>
+
+              {selectedPodcasts.size > 0 ? (
+                <PodcastChart data={chartData} />
+              ) : (
+                <div className="h-96 flex items-center justify-center">
+                  <div className="text-center">
+                    <p className="text-lg font-light italic" style={{ color: '#6d4c36' }}>
+                      Choose your voices to see the story unfold...
                     </p>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>
-                      Showing {selectedPodcasts.size} show{selectedPodcasts.size !== 1 ? 's' : ''}
-                    </div>
-                  </div>
                 </div>
-
-                {selectedPodcasts.size > 0 ? (
-                  <PodcastChart data={chartData} />
-                ) : (
-                  <div className="h-96 flex items-center justify-center">
-                    <div className="text-center">
-                      <BarChart3 className="w-20 h-20 mx-auto mb-6 opacity-30" style={{ color: 'var(--text-muted)' }} />
-                      <p className="text-lg font-light italic" style={{ color: 'var(--text-muted)' }}>
-                        Choose your voices to see the story unfold...
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Podcast Selector */}
-          <div className="lg:col-span-1">
-            <PodcastSelector
-              allPodcasts={topPodcasts}
-              selectedPodcasts={selectedPodcasts}
-              onSelectionChange={setSelectedPodcasts}
-            />
+        {/* Podcast Selector by Year */}
+        <div className="shadow-lg overflow-hidden" style={{
+          background: '#F5EFE6',
+          border: '2px solid #C4B5A0'
+        }}>
+          <div className="p-6">
+            <h3 className="text-xl font-bold mb-6 text-center" style={{
+              fontFamily: "'Crimson Text', Georgia, serif",
+              color: '#8B0000'
+            }}>
+              Top 10 Podcasts by Year
+            </h3>
 
-            {/* Legend */}
-            {selectedPodcasts.size > 0 && (
-              <div className="mt-8 rounded-2xl shadow-lg overflow-hidden" style={{
-                background: 'var(--warm-beige)',
-                border: '2px solid var(--sand)'
-              }}>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold mb-4" style={{
-                    fontFamily: "'Crimson Text', Georgia, serif",
-                    color: 'var(--dark-coffee)'
-                  }}>
-                    Your Chosen Voices
-                  </h3>
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
-                    {Array.from(selectedPodcasts).map((podcast, index) => {
-                      const colorIndex = topPodcasts.indexOf(podcast) % 20;
-                      const totalHoursForPodcast = yearlyData.reduce(
-                        (sum, year) => sum + (year.podcasts[podcast] || 0), 0
-                      );
+            {/* Year Selector */}
+            <div className="flex flex-wrap gap-3 mb-6 justify-center">
+              {yearlyData.map(year => (
+                <button
+                  key={year.year}
+                  onClick={() => {
+                    setSelectedYear(year.year);
+                    setSelectedPodcasts(new Set(topPodcastsByYear[year.year] || []));
+                  }}
+                  className="px-6 py-2 font-semibold transition-all duration-200"
+                  style={{
+                    background: selectedYear === year.year ? '#8B0000' : '#D4C5A9',
+                    color: selectedYear === year.year ? '#FFFFFF' : '#4a3728',
+                    border: '2px solid #C4B5A0',
+                    fontFamily: "'Source Serif Pro', Georgia, serif"
+                  }}
+                >
+                  {year.year}
+                </button>
+              ))}
+            </div>
 
-                      return (
-                        <div key={podcast} className="flex items-center space-x-4 p-2 rounded-lg" style={{
-                          background: 'rgba(218, 165, 32, 0.1)'
-                        }}>
-                          <div
-                            className="w-4 h-4 rounded-full shadow-sm border-2"
-                            style={{
-                              backgroundColor: chartData.datasets[index]?.backgroundColor,
-                              borderColor: 'var(--dark-coffee)'
-                            }}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
-                              {podcast}
-                            </p>
-                            <p className="text-xs font-light italic" style={{ color: 'var(--text-muted)' }}>
-                              {formatHours(totalHoursForPodcast)} of listening
-                            </p>
-                          </div>
+            {/* Podcast List for Selected Year */}
+            {selectedYear && topPodcastsByYear[selectedYear] && (
+              <div className="space-y-3">
+                {topPodcastsByYear[selectedYear].map((podcast, index) => {
+                  const isSelected = selectedPodcasts.has(podcast);
+                  const totalHoursForPodcast = yearlyData
+                    .find(y => y.year === selectedYear)
+                    ?.podcasts[podcast] || 0;
+
+                  return (
+                    <label
+                      key={podcast}
+                      className="flex items-center space-x-4 cursor-pointer p-3 transition-all duration-200"
+                      style={{
+                        background: isSelected ? '#D4C5A9' : '#FFFFFF',
+                        border: isSelected ? '2px solid #8B0000' : '1px solid #C4B5A0'
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => {
+                          const newSelection = new Set(selectedPodcasts);
+                          if (newSelection.has(podcast)) {
+                            newSelection.delete(podcast);
+                          } else {
+                            newSelection.add(podcast);
+                          }
+                          setSelectedPodcasts(newSelection);
+                        }}
+                        className="sr-only"
+                      />
+                      <div className="flex items-center space-x-4 flex-1">
+                        <div
+                          className="w-5 h-5 flex items-center justify-center"
+                          style={{
+                            border: '2px solid #8B0000',
+                            backgroundColor: isSelected ? '#8B0000' : 'transparent'
+                          }}
+                        >
+                          {isSelected && (
+                            <svg className="w-3 h-3" fill="white" viewBox="0 0 8 8">
+                              <path d="M6.564.75l-3.59 3.612-1.538-1.55L0 4.26l2.974 2.99L8 2.193z" />
+                            </svg>
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium text-sm font-serif" style={{
+                            color: '#4a3728',
+                            fontFamily: "'Source Serif Pro', Georgia, serif"
+                          }}>
+                            {podcast}
+                          </span>
+                          <span className="text-xs ml-2" style={{ color: '#6d4c36' }}>
+                            ({formatHours(totalHoursForPodcast)})
+                          </span>
+                        </div>
+                      </div>
+                    </label>
+                  );
+                })}
               </div>
             )}
           </div>

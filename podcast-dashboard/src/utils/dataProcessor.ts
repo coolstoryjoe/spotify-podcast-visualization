@@ -1,4 +1,4 @@
-import { PodcastEntry, YearlyData, ChartData } from '@/types/podcast';
+import { PodcastEntry, YearlyData, QuarterlyData, ChartData } from '@/types/podcast';
 
 export const PODCAST_COLORS = [
   '#D2B48C', '#DEB887', '#F4A460', '#DAA520', '#B8860B',
@@ -21,6 +21,51 @@ export const PODCAST_COLORS = [
   '#B6A385', '#B19E80', '#AC997B', '#A79476', '#A28F71',
   '#9D8A6C', '#988567', '#938062', '#8E7B5D', '#897658'
 ];
+
+export function processQuarterlyData(entries: PodcastEntry[]): QuarterlyData[] {
+  const quarterlyMap: { [key: string]: { [showName: string]: number } } = {};
+
+  entries.forEach(entry => {
+    const date = new Date(entry.ts);
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const quarter = Math.floor(month / 3) + 1;
+    const key = `${year}-Q${quarter}`;
+    const showName = entry.episode_show_name;
+    const hours = entry.ms_played / (1000 * 60 * 60);
+
+    if (!quarterlyMap[key]) {
+      quarterlyMap[key] = {};
+    }
+
+    if (!quarterlyMap[key][showName]) {
+      quarterlyMap[key][showName] = 0;
+    }
+
+    quarterlyMap[key][showName] += hours;
+  });
+
+  return Object.keys(quarterlyMap)
+    .map(key => {
+      const [yearStr, quarterStr] = key.split('-Q');
+      const year = parseInt(yearStr);
+      const quarter = parseInt(quarterStr);
+      const podcasts = quarterlyMap[key];
+      const totalHours = Object.values(podcasts).reduce((sum, hours) => sum + hours, 0);
+
+      return {
+        year,
+        quarter,
+        label: key,
+        podcasts,
+        totalHours
+      };
+    })
+    .sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.quarter - b.quarter;
+    });
+}
 
 export function processYearlyData(entries: PodcastEntry[]): YearlyData[] {
   const yearlyMap: { [year: number]: { [showName: string]: number } } = {};
@@ -74,6 +119,27 @@ export function getTopPodcasts(yearlyData: YearlyData[], limit: number = 100): s
     .map(([showName]) => showName);
 }
 
+export function createChartDataQuarterly(
+  quarterlyData: QuarterlyData[],
+  selectedPodcasts: Set<string>
+): ChartData {
+  const labels = quarterlyData.map(d => d.label);
+  const podcastList = Array.from(selectedPodcasts);
+
+  const datasets = podcastList.map((podcast, index) => ({
+    label: podcast,
+    data: quarterlyData.map(quarterData => quarterData.podcasts[podcast] || 0),
+    backgroundColor: PODCAST_COLORS[index % PODCAST_COLORS.length],
+    borderColor: PODCAST_COLORS[index % PODCAST_COLORS.length],
+    borderWidth: 1
+  }));
+
+  return {
+    labels,
+    datasets
+  };
+}
+
 export function createChartData(
   yearlyData: YearlyData[],
   selectedPodcasts: Set<string>
@@ -93,6 +159,21 @@ export function createChartData(
     labels: years,
     datasets
   };
+}
+
+export function getTopPodcastsByYear(yearlyData: YearlyData[]): { [year: number]: string[] } {
+  const topByYear: { [year: number]: string[] } = {};
+
+  yearlyData.forEach(yearData => {
+    const sortedPodcasts = Object.entries(yearData.podcasts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([showName]) => showName);
+
+    topByYear[yearData.year] = sortedPodcasts;
+  });
+
+  return topByYear;
 }
 
 export function formatHours(hours: number): string {
