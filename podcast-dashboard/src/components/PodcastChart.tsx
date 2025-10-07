@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,6 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  TooltipItem,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { ChartData } from '@/types/podcast';
@@ -51,14 +52,14 @@ export default function PodcastChart({ data }: PodcastChartProps) {
         titleFont: {
           family: "'Crimson Text', Georgia, serif",
           size: 14,
-          weight: '600'
+          weight: 'bold' as const
         },
         bodyFont: {
           family: "'Source Serif Pro', Georgia, serif",
           size: 13
         },
         callbacks: {
-          label: function(context: any) {
+          label: function(context: TooltipItem<'bar'>) {
             const hours = context.parsed.y;
             const formattedHours = hours < 1 ?
               `${Math.round(hours * 60)}m` :
@@ -79,7 +80,7 @@ export default function PodcastChart({ data }: PodcastChartProps) {
           font: {
             family: "'Source Serif Pro', Georgia, serif",
             size: 13,
-            weight: '500'
+            weight: 'normal' as const
           }
         },
         border: {
@@ -97,9 +98,9 @@ export default function PodcastChart({ data }: PodcastChartProps) {
           font: {
             family: "'Source Serif Pro', Georgia, serif",
             size: 13,
-            weight: '500'
+            weight: 'normal' as const
           },
-          callback: function(value: any) {
+          callback: function(value: string | number) {
             const hours = value as number;
             return hours < 1 ? `${Math.round(hours * 60)}m` : `${Math.round(hours)}h`;
           }

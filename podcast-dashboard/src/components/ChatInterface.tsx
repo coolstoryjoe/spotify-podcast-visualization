@@ -78,7 +78,7 @@ export default function ChatInterface() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-sm italic" style={{ color: '#6d4c36', marginTop: '100px' }}>
-            Try asking: "What were my most listened to podcasts?" or "What themes dominated my listening in 2023?"
+            Try asking: &quot;What were my most listened to podcasts?&quot; or &quot;What themes dominated my listening in 2023?&quot;
           </div>
         )}
 

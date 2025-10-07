@@ -1,13 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { TrendingUp, Clock, BarChart3 } from 'lucide-react';
 import PodcastChart from '@/components/PodcastChart';
-import PodcastSelector from '@/components/PodcastSelector';
 import ChatInterface from '@/components/ChatInterface';
 import QuarterlyNarrative from '@/components/QuarterlyNarrative';
 import { PodcastEntry, YearlyData, QuarterlyData } from '@/types/podcast';
-import { processYearlyData, processQuarterlyData, getTopPodcasts, getTopPodcastsByYear, createChartDataQuarterly, formatHours } from '@/utils/dataProcessor';
+import { processYearlyData, processQuarterlyData, getTopPodcastsByYear, createChartDataQuarterly, formatHours } from '@/utils/dataProcessor';
 
 export default function Dashboard() {
   const [podcastData, setPodcastData] = useState<PodcastEntry[]>([]);
@@ -249,7 +247,7 @@ export default function Dashboard() {
             {/* Podcast List for Selected Year */}
             {selectedYear && topPodcastsByYear[selectedYear] && (
               <div className="space-y-3">
-                {topPodcastsByYear[selectedYear].map((podcast, index) => {
+                {topPodcastsByYear[selectedYear].map((podcast) => {
                   const isSelected = selectedPodcasts.has(podcast);
                   const totalHoursForPodcast = yearlyData
                     .find(y => y.year === selectedYear)

@@ -17,6 +17,7 @@ export default function QuarterlyNarrative({ year, quarter }: QuarterlyNarrative
     if (year && quarter) {
       fetchNarrative();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, quarter]);
 
   const fetchNarrative = async () => {

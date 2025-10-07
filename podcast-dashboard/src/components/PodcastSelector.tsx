@@ -106,7 +106,7 @@ export default function PodcastSelector({
         </div>
 
         <div className="space-y-3 max-h-72 overflow-y-auto">
-          {filteredPodcasts.map((podcast, index) => {
+          {filteredPodcasts.map((podcast) => {
             const isSelected = selectedPodcasts.has(podcast);
             const colorIndex = allPodcasts.indexOf(podcast) % PODCAST_COLORS.length;
 
