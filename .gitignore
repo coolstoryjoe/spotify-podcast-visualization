@@ -133,3 +133,10 @@ temp/
 # Build artifacts
 *.tgz
 *.tar.gz
+
+# Personal data
+my_spotify_data*/
+*.zip
+.claude/
+backend/.env
+nul

@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { TrendingUp, Clock, BarChart3 } from 'lucide-react';
 import PodcastChart from '@/components/PodcastChart';
 import PodcastSelector from '@/components/PodcastSelector';
+import ChatInterface from '@/components/ChatInterface';
+import QuarterlyNarrative from '@/components/QuarterlyNarrative';
 import { PodcastEntry, YearlyData, QuarterlyData } from '@/types/podcast';
 import { processYearlyData, processQuarterlyData, getTopPodcasts, getTopPodcastsByYear, createChartDataQuarterly, formatHours } from '@/utils/dataProcessor';
 
@@ -13,6 +15,7 @@ export default function Dashboard() {
   const [quarterlyData, setQuarterlyData] = useState<QuarterlyData[]>([]);
   const [topPodcastsByYear, setTopPodcastsByYear] = useState<{ [year: number]: string[] }>({});
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
   const [selectedPodcasts, setSelectedPodcasts] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
@@ -305,6 +308,52 @@ export default function Dashboard() {
                   );
                 })}
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* AI Features Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-12">
+          {/* Chat Interface */}
+          <ChatInterface />
+
+          {/* Quarterly Narrative */}
+          <div className="space-y-4">
+            {selectedYear && (
+              <>
+                {/* Quarter Selector */}
+                <div className="shadow-lg overflow-hidden p-4" style={{
+                  background: '#F5EFE6',
+                  border: '2px solid #C4B5A0'
+                }}>
+                  <h4 className="text-sm font-bold mb-3 text-center" style={{
+                    fontFamily: "'Crimson Text', Georgia, serif",
+                    color: '#8B0000'
+                  }}>
+                    Select Quarter for Narrative
+                  </h4>
+                  <div className="flex gap-2 justify-center">
+                    {[1, 2, 3, 4].map(q => (
+                      <button
+                        key={q}
+                        onClick={() => setSelectedQuarter(q)}
+                        className="px-4 py-2 font-semibold transition-all duration-200"
+                        style={{
+                          background: selectedQuarter === q ? '#8B0000' : '#D4C5A9',
+                          color: selectedQuarter === q ? '#FFFFFF' : '#4a3728',
+                          border: '2px solid #C4B5A0',
+                          fontFamily: "'Source Serif Pro', Georgia, serif",
+                          fontSize: '14px'
+                        }}
+                      >
+                        Q{q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <QuarterlyNarrative year={selectedYear} quarter={selectedQuarter} />
+              </>
             )}
           </div>
         </div>
