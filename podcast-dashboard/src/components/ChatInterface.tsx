@@ -51,33 +51,36 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="shadow-lg overflow-hidden flex flex-col" style={{
-      background: '#F5EFE6',
-      border: '2px solid #C4B5A0',
-      height: '500px'
+    <div className="flex flex-col" style={{
+      background: '#ffffff',
+      border: '1px solid #e5e5e5',
+      borderRadius: '12px',
+      height: '500px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
     }}>
-      <div className="p-4" style={{ borderBottom: '2px solid #C4B5A0' }}>
+      <div className="p-6" style={{ borderBottom: '1px solid #e5e5e5' }}>
         <div className="flex items-center space-x-2">
-          <Sparkles className="w-5 h-5" style={{ color: '#8B0000' }} />
-          <h3 className="text-lg font-bold" style={{
-            fontFamily: "'Crimson Text', Georgia, serif",
-            color: '#8B0000'
+          <Sparkles className="w-5 h-5" style={{ color: '#0a0a0a' }} />
+          <h3 className="text-lg font-semibold" style={{
+            fontFamily: 'system-ui, sans-serif',
+            color: '#0a0a0a',
+            letterSpacing: '-0.01em'
           }}>
-            Ask About Your Listening
+            AI Chat
           </h3>
         </div>
         <p className="text-sm mt-1" style={{
-          color: '#6d4c36',
-          fontFamily: "'Source Serif Pro', Georgia, serif"
+          color: '#666',
+          fontFamily: 'system-ui, sans-serif'
         }}>
-          Ask questions about your podcast history
+          Ask questions about your listening history
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.length === 0 && (
-          <div className="text-center text-sm italic" style={{ color: '#6d4c36', marginTop: '100px' }}>
-            Try asking: &quot;What were my most listened to podcasts?&quot; or &quot;What themes dominated my listening in 2023?&quot;
+          <div className="text-center text-sm" style={{ color: '#999', marginTop: '100px', fontFamily: 'system-ui, sans-serif' }}>
+            Try asking: &quot;What were my most listened to podcasts?&quot;
           </div>
         )}
 
@@ -87,12 +90,15 @@ export default function ChatInterface() {
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className="max-w-[80%] p-3"
+              className="max-w-[80%] p-4"
               style={{
-                background: message.role === 'user' ? '#D4C5A9' : '#FFFFFF',
-                border: `1px solid ${message.role === 'user' ? '#8B0000' : '#C4B5A0'}`,
-                fontFamily: "'Source Serif Pro', Georgia, serif",
-                color: '#4a3728'
+                background: message.role === 'user' ? '#f5f5f5' : '#ffffff',
+                border: `1px solid #e5e5e5`,
+                borderRadius: '8px',
+                fontFamily: 'system-ui, sans-serif',
+                color: '#0a0a0a',
+                fontSize: '14px',
+                lineHeight: '1.6'
               }}
             >
               {message.content}
@@ -103,12 +109,14 @@ export default function ChatInterface() {
         {loading && (
           <div className="flex justify-start">
             <div
-              className="max-w-[80%] p-3"
+              className="max-w-[80%] p-4"
               style={{
-                background: '#FFFFFF',
-                border: '1px solid #C4B5A0',
-                fontFamily: "'Source Serif Pro', Georgia, serif",
-                color: '#6d4c36'
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                borderRadius: '8px',
+                fontFamily: 'system-ui, sans-serif',
+                color: '#666',
+                fontSize: '14px'
               }}
             >
               Thinking...
@@ -117,7 +125,7 @@ export default function ChatInterface() {
         )}
       </div>
 
-      <div className="p-4" style={{ borderTop: '2px solid #C4B5A0' }}>
+      <div className="p-4" style={{ borderTop: '1px solid #e5e5e5' }}>
         <div className="flex space-x-2">
           <input
             type="text"
@@ -125,12 +133,14 @@ export default function ChatInterface() {
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask a question..."
-            className="flex-1 px-4 py-2"
+            className="flex-1 px-4 py-3"
             style={{
-              background: '#FFFFFF',
-              border: '2px solid #C4B5A0',
-              color: '#4a3728',
-              fontFamily: "'Source Serif Pro', Georgia, serif",
+              background: '#fafafa',
+              border: '1px solid #e5e5e5',
+              borderRadius: '8px',
+              color: '#0a0a0a',
+              fontFamily: 'system-ui, sans-serif',
+              fontSize: '14px',
               outline: 'none'
             }}
             disabled={loading}
@@ -138,13 +148,16 @@ export default function ChatInterface() {
           <button
             onClick={handleSend}
             disabled={loading || !input.trim()}
-            className="px-4 py-2 font-semibold transition-all duration-200 flex items-center space-x-2"
+            className="px-4 py-3 font-medium transition-all duration-150 flex items-center space-x-2"
             style={{
-              background: loading || !input.trim() ? '#D4C5A9' : '#8B0000',
-              color: '#FFFFFF',
-              border: '2px solid #C4B5A0',
+              background: loading || !input.trim() ? '#e5e5e5' : '#0a0a0a',
+              color: loading || !input.trim() ? '#999' : '#ffffff',
+              border: '1px solid #e5e5e5',
+              borderRadius: '8px',
               opacity: loading || !input.trim() ? 0.5 : 1,
-              cursor: loading || !input.trim() ? 'not-allowed' : 'pointer'
+              cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
+              fontFamily: 'system-ui, sans-serif',
+              fontSize: '14px'
             }}
           >
             <Send className="w-4 h-4" />

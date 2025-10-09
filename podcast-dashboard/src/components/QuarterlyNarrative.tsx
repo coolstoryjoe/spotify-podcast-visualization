@@ -52,27 +52,30 @@ export default function QuarterlyNarrative({ year, quarter }: QuarterlyNarrative
   };
 
   return (
-    <div className="shadow-lg overflow-hidden" style={{
-      background: '#F5EFE6',
-      border: '2px solid #C4B5A0'
+    <div style={{
+      background: '#ffffff',
+      border: '1px solid #e5e5e5',
+      borderRadius: '12px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
     }}>
       <div className="p-6">
-        <div className="flex items-center space-x-2 mb-4">
-          <BookOpen className="w-5 h-5" style={{ color: '#8B0000' }} />
-          <h3 className="text-xl font-bold" style={{
-            fontFamily: "'Crimson Text', Georgia, serif",
-            color: '#8B0000'
+        <div className="flex items-center space-x-2 mb-6">
+          <BookOpen className="w-5 h-5" style={{ color: '#0a0a0a' }} />
+          <h3 className="text-lg font-semibold" style={{
+            fontFamily: 'system-ui, sans-serif',
+            color: '#0a0a0a',
+            letterSpacing: '-0.01em'
           }}>
-            Narrative: {getQuarterLabel()}
+            {getQuarterLabel()} Narrative
           </h3>
         </div>
 
         {loading && (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#8B0000' }} />
-            <span className="ml-2" style={{
-              color: '#6d4c36',
-              fontFamily: "'Source Serif Pro', Georgia, serif"
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#0a0a0a' }} />
+            <span className="ml-3 text-sm font-medium" style={{
+              color: '#666',
+              fontFamily: 'system-ui, sans-serif'
             }}>
               Generating narrative...
             </span>
@@ -81,10 +84,11 @@ export default function QuarterlyNarrative({ year, quarter }: QuarterlyNarrative
 
         {error && (
           <div className="p-4 text-sm" style={{
-            background: '#FFE4E1',
-            border: '1px solid #C4B5A0',
-            color: '#8B0000',
-            fontFamily: "'Source Serif Pro', Georgia, serif"
+            background: '#fff5f5',
+            border: '1px solid #fee',
+            borderRadius: '8px',
+            color: '#c53030',
+            fontFamily: 'system-ui, sans-serif'
           }}>
             {error}
           </div>
@@ -94,10 +98,11 @@ export default function QuarterlyNarrative({ year, quarter }: QuarterlyNarrative
           <div
             className="prose prose-sm max-w-none"
             style={{
-              color: '#4a3728',
-              fontFamily: "'Source Serif Pro', Georgia, serif",
-              lineHeight: '1.8',
-              whiteSpace: 'pre-wrap'
+              color: '#0a0a0a',
+              fontFamily: 'system-ui, sans-serif',
+              lineHeight: '1.7',
+              whiteSpace: 'pre-wrap',
+              fontSize: '14px'
             }}
           >
             {narrative}
@@ -105,7 +110,10 @@ export default function QuarterlyNarrative({ year, quarter }: QuarterlyNarrative
         )}
 
         {!loading && !error && !narrative && (
-          <div className="text-center text-sm italic py-4" style={{ color: '#6d4c36' }}>
+          <div className="text-center text-sm py-12" style={{
+            color: '#999',
+            fontFamily: 'system-ui, sans-serif'
+          }}>
             Select a year to generate a narrative for {getQuarterLabel()}
           </div>
         )}
@@ -113,12 +121,14 @@ export default function QuarterlyNarrative({ year, quarter }: QuarterlyNarrative
         {!loading && narrative && (
           <button
             onClick={fetchNarrative}
-            className="mt-4 px-4 py-2 text-sm font-semibold transition-all duration-200"
+            className="mt-6 px-4 py-2.5 text-sm font-medium transition-all duration-150"
             style={{
-              background: '#D4C5A9',
-              color: '#4a3728',
-              border: '2px solid #C4B5A0',
-              fontFamily: "'Source Serif Pro', Georgia, serif"
+              background: '#ffffff',
+              color: '#0a0a0a',
+              border: '1px solid #e5e5e5',
+              borderRadius: '8px',
+              fontFamily: 'system-ui, sans-serif',
+              cursor: 'pointer'
             }}
           >
             Regenerate Narrative
