@@ -42,20 +42,20 @@ export default function PodcastChart({ data }: PodcastChartProps) {
         display: false,
       },
       tooltip: {
-        backgroundColor: 'rgba(77, 51, 38, 0.95)',
-        titleColor: '#f7f3e9',
-        bodyColor: '#f7f3e9',
-        borderColor: '#a67c52',
+        backgroundColor: 'rgba(17, 112, 37, 0.95)',
+        titleColor: '#FFFFFF',
+        bodyColor: '#FFFFFF',
+        borderColor: '#85C093',
         borderWidth: 2,
         cornerRadius: 12,
         padding: 12,
         titleFont: {
-          family: "'Crimson Text', Georgia, serif",
+          family: '-apple-system, BlinkMacSystemFont, sans-serif',
           size: 14,
           weight: 'bold' as const
         },
         bodyFont: {
-          family: "'Source Serif Pro', Georgia, serif",
+          family: '-apple-system, BlinkMacSystemFont, sans-serif',
           size: 13
         },
         callbacks: {
@@ -76,9 +76,9 @@ export default function PodcastChart({ data }: PodcastChartProps) {
           display: false,
         },
         ticks: {
-          color: '#6d4c36',
+          color: '#666666',
           font: {
-            family: "'Source Serif Pro', Georgia, serif",
+            family: '-apple-system, BlinkMacSystemFont, sans-serif',
             size: 13,
             weight: 'normal' as const
           }
@@ -90,13 +90,13 @@ export default function PodcastChart({ data }: PodcastChartProps) {
       y: {
         stacked: true,
         grid: {
-          color: 'rgba(166, 124, 82, 0.2)',
+          color: 'rgba(212, 212, 212, 0.3)',
           drawBorder: false,
         },
         ticks: {
-          color: '#6d4c36',
+          color: '#666666',
           font: {
-            family: "'Source Serif Pro', Georgia, serif",
+            family: '-apple-system, BlinkMacSystemFont, sans-serif',
             size: 13,
             weight: 'normal' as const
           },
