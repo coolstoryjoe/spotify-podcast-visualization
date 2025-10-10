@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd podcast-dashboard && npm install && npm run build",
+  "outputDirectory": "podcast-dashboard/.next",
+  "framework": "nextjs",
+  "installCommand": "cd podcast-dashboard && npm install"
+}
